@@ -1,0 +1,24 @@
+<!--필드 오류-->
+{% if form.errors %}
+<div class="alert alert-danger" role="alert">
+    <strong>오류!</strong>
+    <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<!--flash 오류-->
+{% if get_flashed_messages() %}
+<div class="alert alert-danger" role="alert">
+    <strong>오류!</strong>
+    <ul>
+        {% for message in get_flashed_messages() %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
