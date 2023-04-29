@@ -1,10 +1,28 @@
+# Models.py 파일은 데이터베이스 테이블을 정의하는 파일이다.
+
 from pybo import db
+
+question_voter = db.Table(
+    'question_voter',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('question_id', db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), primary_key=True)
+) # 질문 추천 테이블 생성 (N대 N)
+
+answer_voter = db.Table(
+    'answer_voter',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('answer_id', db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), primary_key=True)
+) # 답변 추천 테이블 생성 (N대 N)
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text(), nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship('User', backref=db.backref('question_set')) # backref는 역참조를 의미한다. 즉, User 테이블에서 Question 테이블을 참조할 수 있게 해준다.
+    modify_date = db.Column(db.DateTime(), nullable=True)
+    voter = db.relationship('User', secondary=question_voter, backref=db.backref('question_voter_set')) # secondary 설정으로 실제 저장되는 테이블은 아니고, 테이블을 참조하는 역할을 한다.
 
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,6 +30,10 @@ class Answer(db.Model):
     question = db.relationship('Question', backref=db.backref('answer_set')) # 1대 N
     content = db.Column(db.Text(), nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False) # 1대 N
+    user = db.relationship('User', backref=db.backref('answer_set')) # 1대 N
+    modify_date = db.Column(db.DateTime(), nullable=True)
+    voter = db.relationship('User', secondary=answer_voter, backref=db.backref('answer_voter_set')) # secondary 설정으로 실제 저장되는 테이블은 아니고, 테이블을 참조하는 역할을 한다.
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

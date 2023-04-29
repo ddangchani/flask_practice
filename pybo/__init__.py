@@ -8,25 +8,14 @@ import config
 db = SQLAlchemy()
 migrate = Migrate() # 여기서 생성해주어야 블루프린트 등 다른 모듈에서 사용가능!
 
-naming_convention = { # 테이블명, 컬럼명 자동 생성 규칙
-    "ix": 'ix_%(column_0_label)s',
-    "uq": "uq_%(table_name)s_%(column_0_name)s",
-    "ck": "ck_%(table_name)s_%(column_0_name)s",
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
-}
-db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
-migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(config)
 
     # ORM
-    if app.config['SQLALCHEMY_DATABASE_URI'].startswith("sqlite"):
-        migrate.init_app(app, db, render_as_batch=True)
-    else:
-        migrate.init_app(app, db)
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     from . import models
     
