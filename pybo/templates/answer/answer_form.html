@@ -22,6 +22,7 @@
         <div class="form-group">
             <label for="content">답변 내용</label>
             <textarea class="form-control" name="content" id="content" rows="10">{{ answer.content }}</textarea>
+            {{ simplemde.load }}
         </div>
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-primary">수정하기</button>

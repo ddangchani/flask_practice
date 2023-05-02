@@ -1,5 +1,3 @@
-# Models.py 파일은 데이터베이스 테이블을 정의하는 파일이다.
-
 from pybo import db
 
 question_voter = db.Table(
@@ -35,9 +33,23 @@ class Answer(db.Model):
     modify_date = db.Column(db.DateTime(), nullable=True)
     voter = db.relationship('User', secondary=answer_voter, backref=db.backref('answer_voter_set')) # secondary 설정으로 실제 저장되는 테이블은 아니고, 테이블을 참조하는 역할을 한다.
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False)
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text(), nullable=False)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True) # 1대 N
+    user = db.relationship('User', backref=db.backref('comment_set')) # 1대 N
+    modify_date = db.Column(db.DateTime(), nullable=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=True) # 1대 N
+    question = db.relationship('Question', backref=db.backref('comment_set')) # 1대 N
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), nullable=True) # 1대 N
+    answer = db.relationship('Answer', backref=db.backref('comment_set')) # 1대 N
+    ip = db.Column(db.String(50), nullable=True, unique=False) # ip 주소 저장
