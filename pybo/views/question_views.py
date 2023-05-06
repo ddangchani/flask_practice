@@ -15,7 +15,14 @@ bp = Blueprint('question', __name__, url_prefix='/question')
 def _list(): # list는 파이썬 내장 함수이므로 함수명을 _list로 정의
     page = request.args.get('page', type=int, default=1)
     kw = request.args.get('kw', type=str, default='')
-    question_list = Question.query.order_by(Question.create_date.desc())
+    sort = request.args.get('sort', type=str, default='recent')
+    # 정렬 기능 : outerjoin() 함수를 사용하여 추천수 및 답변이 없는 질문도 포함A
+    if sort == 'popular':
+        question_list = Question.query.outerjoin(question_voter).group_by(Question).order_by(func.count(question_voter.c.user_id).desc())
+    elif sort == 'answer':
+        question_list = Question.query.outerjoin(Answer).group_by(Question).order_by(func.count(Answer.id).desc())
+    else:
+        question_list = Question.query.order_by(Question.create_date.desc())
     # 검색 기능
     if kw:
         search = '%%{}%%'.format(kw) # %%는 %를 문자 자체로 인식하게 함
@@ -35,7 +42,7 @@ def _list(): # list는 파이썬 내장 함수이므로 함수명을 _list로 �
 
     question_list = question_list.paginate(page=page, per_page=10) # 10개씩 보여주기
 
-    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw)
+    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw, sort=sort)
 
 @bp.route('/detail/<int:question_id>/')
 def detail(question_id):

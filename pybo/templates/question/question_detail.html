@@ -64,17 +64,17 @@
             {% endif %}
             <!--질문 댓글 작성-->
             <div>
-                <a href="{{ url_for('comment.create_question', question_id=question.id) }}" class="small">댓글 작성</a>
+                <a href="{{ url_for('comment.create_question', question_id=question.id) }}" class="small text-decoration-none text-info">댓글 작성</a>
             </div>
             <!--질문 댓글 기능 종료-->
         </div>
     </div>
     <!--답변-->
     <!--정렬 옵션-->
-    <div class="row my-3 border-bottom justify-content-between">
+    <div class="row justify-content-between my-2 border-bottom">
         <h5 class="col-6">{{ question.answer_set|length }}개의 답변이 있습니다.</h5>
         <!-- sorting select button -->
-        <div class="col-4 mp-2">
+        <div class="col-3 mp-2">
             <select class="form-select sort" id="a-sort">
                 <option value="recent" {% if sort == 'recent' %} selected {% endif %}>최신순</option>
                 <option value="popular" {% if sort == 'popular' %} selected {% endif %}>추천순</option>
@@ -107,6 +107,35 @@
                 <a href="javascript:void(0)" name="delete-a" class="delete btn btn-sm btn-outline-secondary" data-uri="{{ url_for('answer.delete', answer_id=answer.id) }}">삭제</a>
                 {% endif %}
             </div>
+            <!--답변 댓글 기능-->
+            {% if answer.comment_set|length > 0 %}
+            <div class="mt-3">
+                {% for comment in answer.comment_set %}
+                <div class="comment py-2 text-muted">
+                    <span>{{ comment.content }}</span>
+                    <span>
+                        {% if comment.user.id %}
+                        - {{ comment.user.username }} , {{ comment.create_date|datetime }}
+                        {% else %}
+                        - {{ comment.ip }} , {{ comment.create_date|datetime }}
+                        {% endif %}
+                        {% if comment.modify_date %}
+                        (수정: {{ comment.modify_date|datetime }})
+                        {% endif %}
+                    </span>
+                    {% if (g.user and g.user == comment.user) or (g.user == answer.user) or (g.user == question.user) %}
+                    <a href="{{ url_for('comment.modify_answer', comment_id=comment.id) }}" class="small">수정</a>
+                    <a href="#" class="small delete" data-uri="{{ url_for('comment.delete_answer', comment_id=comment.id) }}">삭제</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!--답변 댓글 작성-->
+            <div>
+                <a href="{{ url_for('comment.create_answer', answer_id=answer.id) }}" class="small text-decoration-none text-info">댓글 작성</a>
+            </div>
+            <!--답변 댓글 기능 종료-->
         </div>
     </div>
     {% endfor %}
@@ -237,9 +266,9 @@
 
     // when sort select box with id sort changed, change selected value and submit form
 
-    const sort_element = document.getElementById('a-sort');
-    if (sort_element) {
-        sort_element.addEventListener('change', function () {
+    const sort_answer = document.getElementById('a-sort');
+    if (sort_answer) {
+        sort_answer.addEventListener('change', function () {
             const sort_input = document.getElementById('sort');
             sort_input.value = this.value;
             document.getElementById('searchForm').submit();

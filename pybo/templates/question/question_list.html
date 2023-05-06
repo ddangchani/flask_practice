@@ -2,12 +2,16 @@
 {% block content %}
 <!-- 질문 목록 -->
 <div class="container my-3">
-    <!--검색 및 질문등록-->
-    <div class="row my-3">
-        <div class="col-6">
-            <a href="{{ url_for('question.create') }}" class="btn btn-primary">질문 등록하기</a>
+    <!--정렬 및 질문등록-->
+    <div class="row justify-content-between my-2">
+        <div class="col-3 mp-2">
+            <select class="form-select sort" id="q-sort">
+                <option value="recent" {% if sort == 'recent' %} selected {% endif %}>최신순</option>
+                <option value="popular" {% if sort == 'popular' %} selected {% endif %}>추천순</option>
+                <option value="answer" {% if sort == 'answer' %} selected {% endif %}>답변순</option>
+            </select>
         </div>
-        <div class="col-6">
+        <div class="col-4">
             <div class="input-group">
                 <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
                 <div class="input-group-append">
@@ -47,6 +51,11 @@
         {% endif %}
         </tbody>
     </table>
+    <!--질문 등록-->
+    <div>
+        <a href="{{ url_for('question.create') }}" class="btn btn-primary">질문 등록하기</a>
+    </div>
+</div>
     <!-- 페이징처리 시작 -->
 <ul class="pagination justify-content-center">
     <!-- 이전페이지 -->
@@ -88,10 +97,12 @@
     {% endif %}
 </ul>
 <!-- 페이징처리 끝 -->
-</div>
+
+<!--SearchForm-->
 <form id="searchForm" method="get" action="{{ url_for('question._list') }}">
     <input type="hidden" id="page" name="page" value="{{ page }}">
     <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="sort" name="sort" value="{{ sort }}">
 </form>
 {% endblock %}
 {% block script %}
@@ -111,5 +122,14 @@
         document.getElementById('page').value = 1; // 검색시 페이지를 1페이지로 초기화
         document.getElementById('searchForm').submit();
     });
+
+    const sort_question = document.getElementById('q-sort');
+    if (sort_question) {
+        sort_question.addEventListener('change', function () {
+            const sort_input = document.getElementById('sort');
+            sort_input.value = this.value;
+            document.getElementById('searchForm').submit();
+        })
+    }
 </script>
 {% endblock %}
