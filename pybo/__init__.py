@@ -5,15 +5,13 @@ from sqlalchemy import MetaData
 from flask_simplemde import SimpleMDE
 from flaskext.markdown import Markdown
 
-import config
-
 db = SQLAlchemy()
 migrate = Migrate() # 여기서 생성해주어야 블루프린트 등 다른 모듈에서 사용가능!
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(config)
+    app.config.from_envvar('APP_CONFIG_FILE')
     app.config['SIMPLEMDE_JS_IIFE'] = True
     app.config['SIMPLEMDE_USE_CDN'] = True
     SimpleMDE(app)
